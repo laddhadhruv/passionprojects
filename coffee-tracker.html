@@ -276,7 +276,7 @@
 </head>
 <body>
     <header>
-        <h1>Coffee Brewing Tracker</h1>
+        <h1>Coffee Brewing Tracker v2.1</h1>
         <p>Track your coffee brewing settings across different beans and methods</p>
     </header>
     
@@ -300,7 +300,8 @@
             
             <div class="form-group">
                 <label for="roast-level">Roast Level</label>
-                <select id="roast-level">
+                <select id="roast-level" required>
+                    <option value="">N/A</option>
                     <option value="Light">Light</option>
                     <option value="Medium-Light">Medium-Light</option>
                     <option value="Medium">Medium</option>
@@ -311,7 +312,8 @@
             
             <div class="form-group">
                 <label for="brewing-method">Brewing Method</label>
-                <select id="brewing-method">
+                <select id="brewing-method" required>
+                    <option value="">N/A</option>
                     <option value="Pour Over">Pour Over</option>
                     <option value="French Press">French Press</option>
                     <option value="Espresso">Espresso</option>
@@ -331,7 +333,10 @@
             
             <div class="form-group">
                 <label for="grinder">Grinder Used</label>
-                <input type="text" id="grinder" placeholder="e.g., Baratza Encore">
+                <input type="text" id="grinder" placeholder="e.g., Baratza Encore" list="grinder-options">
+                <datalist id="grinder-options">
+                    <!-- Will be populated dynamically -->
+                </datalist>
             </div>
             
             <div class="form-group">
@@ -813,11 +818,12 @@ Notes: ${entry.notes || 'None'}
             }
         }
         
-        // Update filter options
+        // Update filter options and datalists
         function updateFilterOptions() {
             const entries = JSON.parse(localStorage.getItem('coffeeEntries'));
             const roasterFilter = document.getElementById('filter-roaster');
             const brewingFilter = document.getElementById('filter-brewing');
+            const grinderDatalist = document.getElementById('grinder-options');
             
             // Clear current options except first
             while (roasterFilter.options.length > 1) {
@@ -828,9 +834,13 @@ Notes: ${entry.notes || 'None'}
                 brewingFilter.remove(1);
             }
             
-            // Get unique roasters and brewing methods
+            // Clear grinder datalist
+            grinderDatalist.innerHTML = '';
+            
+            // Get unique roasters, brewing methods, and grinders
             const roasters = [...new Set(entries.map(e => e.roaster).filter(r => r))];
             const brewingMethods = [...new Set(entries.map(e => e.brewingMethod))];
+            const grinders = [...new Set(entries.map(e => e.grinder).filter(g => g))];
             
             // Add options
             roasters.forEach(roaster => {
@@ -845,6 +855,13 @@ Notes: ${entry.notes || 'None'}
                 option.value = method;
                 option.textContent = method;
                 brewingFilter.appendChild(option);
+            });
+            
+            // Add grinder options to datalist
+            grinders.forEach(grinder => {
+                const option = document.createElement('option');
+                option.value = grinder;
+                grinderDatalist.appendChild(option);
             });
         }
         
